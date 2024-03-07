@@ -39,9 +39,18 @@ public class RecordController {
     @PostMapping("/save")
     public Result save(@RequestBody Record record) {
         record.setCreatetime(LocalDateTime.now());
-        //物品入库后增加已有物品数量
         Goods goods = goodsService.getById(record.getGoods());
-        int newNum = record.getCount() + goods.getCount();
+        int n = record.getCount();
+        //出库
+        if("2".equals(record.getAction())){
+            n = -n;
+            record.setCount(n);
+        }
+        //更改已有物品数量
+        int newNum = n + goods.getCount();
+        if(newNum < 0){
+            return Result.fail("物品库存不足!");
+        }
         goods.setCount(newNum);
         goodsService.updateById(goods);
         return recordService.save(record) ? Result.suc() : Result.fail();
