@@ -75,6 +75,8 @@ public class RecordController {
         String name = (String) param.get("name");
         String storage = (String) param.get("storage");
         String goodstype = (String) param.get("goodstype");
+        String roleId = (String) param.get("roleId");
+        String userId = (String) param.get("userId");
 
         Page<Record> page = new Page();
         page.setCurrent(query.getPageNum());
@@ -82,6 +84,11 @@ public class RecordController {
 
         QueryWrapper<Record> QueryWrapper = new QueryWrapper();
         QueryWrapper.apply("a.goods = b.id and c.id = b.storage and d.id = b.goodsType");
+
+
+        if("2".equals(roleId)){
+            QueryWrapper.apply("a.userId=" + userId);
+        }
         if (StringUtils.isNotBlank(name) && !"null".equals(name)) {
             QueryWrapper.like("b.name", name);
         }
