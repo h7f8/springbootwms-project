@@ -1,6 +1,5 @@
 package com.wms.controller;
 
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -8,11 +7,14 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wms.common.QueryPageParam;
 import com.wms.common.Result;
+import com.wms.entity.Goods;
 import com.wms.entity.Record;
+import com.wms.service.GoodsService;
 import com.wms.service.RecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 
 /**
@@ -30,9 +32,18 @@ public class RecordController {
     @Autowired
     private RecordService recordService;
 
+    @Autowired
+    private GoodsService goodsService;
+
     //增
     @PostMapping("/save")
     public Result save(@RequestBody Record record) {
+        record.setCreatetime(LocalDateTime.now());
+        //物品入库后增加已有物品数量
+        Goods goods = goodsService.getById(record.getGoods());
+        int newNum = record.getCount() + goods.getCount();
+        goods.setCount(newNum);
+        goodsService.updateById(goods);
         return recordService.save(record) ? Result.suc() : Result.fail();
     }
 
